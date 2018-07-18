@@ -1,21 +1,101 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion rootProject.compileSdkVersion
     defaultConfig {
-        applicationId "com.example.lianghui.demo2"
-        minSdkVersion 21
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+    signingConfigs {
+        keystore {
+            storeFile file("zhisland.keystore")
+            storePassword "ZHisland"
+            keyAlias "zhisland"
+            keyPassword "ZHisland"
         }
     }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+            signingConfig signingConfigs.keystore
+
+            buildConfigField "String", "BASE_URL", '"http://wwww.haha.com"'
+        }
+
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.keystore
+
+            buildConfigField "String", "BASE_URL", '"http://wwww.baidu.com"'
+        }
+    }
+
+    flavorDimensions("channle", "env")
+
+    productFlavors {
+        qa {
+            dimension "env"
+        }
+
+//        pre {
+//            dimension "env"
+//        }
+//
+        prod {
+            dimension "env"
+        }
+
+        baidu {
+            dimension "channle"
+
+            applicationId "com.example.lianghui.demo1"
+            manifestPlaceholders = [CHANNLE: "demo1"]
+            manifestPlaceholders = [app_name: "demo1"]
+            versionName "1.0"
+            versionCode 1
+        }
+//        alibaba {
+//            dimension "channle"
+//
+//            applicationId "com.example.lianghui.demo2"
+//            manifestPlaceholders = [CHANNLE: "demo2"]
+//            manifestPlaceholders = [app_name: "demo2"]
+//            versionName "1.1"
+//            versionCode 2
+//        }
+//        tecent {
+//            dimension "channle"
+//
+//            applicationId "com.example.lianghui.demo3"
+//            manifestPlaceholders = [CHANNLE: "demo3"]
+//            manifestPlaceholders = [app_name: "demo3"]
+//            versionName "1.2"
+//            versionCode 3
+//        }
+    }
+
+    variantFilter { variant ->
+        if (variant.buildType.name == 'release') {
+            variant.setIgnore(variant.getFlavors().get(1).name != 'prod')
+        }
+//        if (variant.buildType.name == 'debug') {
+//            variant.setIgnore(variant.getFlavors().get(1).name == 'channel')
+//        }
+    }
+
+    // rename the apk with the version name
+    // add output file sub folder by build type
+//    applicationVariants.all { variant ->
+//        variant.outputs.each { output ->
+//            output.outputFile = new File(
+//                    output.outputFile.parent + "/${variant.buildType.name}",
+//                    "xinyiduoduo-${variant.buildType.name}-${variant.versionName}.apk".toLowerCase())
+//        }
+//    }
 }
 
 dependencies {
